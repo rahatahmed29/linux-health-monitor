@@ -3,7 +3,7 @@ from health import HealthEvaluator
 from logger import setup_logger
 from monitor import SystemMonitor
 from service_monitor import ServiceMonitor
-
+from report import ReportGenerator
 
 def main():
 
@@ -16,6 +16,8 @@ def main():
     service_monitor = ServiceMonitor()
 
     evaluator = HealthEvaluator()
+
+    report_generator = ReportGenerator()
 
     logger.info("Linux Health Monitor Started")
 
@@ -59,10 +61,16 @@ def main():
 
     services = config.get("services")
 
+    service_statuses = {}
+
     for service in services:
-        status = service_monitor.check_service(service)
-        print(f"{service:<12}: {status}")
-        logger.info(f"{service}: {status}")
+     status = service_monitor.check_service(service)
+
+     service_statuses[service] = status
+
+     print(f"{service:<12}: {status}")
+
+     logger.info(f"{service}: {status}")
 
     overall = "HEALTHY"
 
@@ -80,7 +88,20 @@ def main():
     logger.info(f"Overall Health: {overall}")
 
     logger.info("Linux Health Monitor Finished")
-
-
+    
+    report_data = {
+    "cpu_usage": cpu,
+    "cpu_status": cpu_status,
+    "memory_usage": memory,
+    "memory_status": memory_status,
+    "disk_usage": disk,
+    "disk_status": disk_status,
+    "load_average": load,
+    "uptime": uptime,
+    "overall_health": overall,
+    "services": service_statuses
+}
+    report_generator.generate(report_data)
+    
 if __name__ == "__main__":
     main()
