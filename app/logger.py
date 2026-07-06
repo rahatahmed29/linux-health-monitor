@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 
@@ -11,6 +12,12 @@ def setup_logger() -> logging.Logger:
     log_dir.mkdir(exist_ok=True)
 
     log_file = log_dir / "monitor.log"
+
+    handler = RotatingFileHandler(
+        filename=log_file,
+        maxBytes=1024 * 1024,   # 1 MB
+        backupCount=5
+    )
 
     logging.basicConfig(
         filename=log_file,
